@@ -19,11 +19,12 @@
           inherit system;
           specialArgs = { inherit inputs; };
           modules = [
-            ./modules/common.nix
             ./modules/boot-grub.nix
+            ./modules/config.nix
             ./modules/desktop.nix
-            ./modules/packages.nix
             ./modules/dev.nix
+            ./modules/packages.nix
+            ./modules/system.nix
             ./hosts/${hostName}
             home-manager.nixosModules.home-manager
             {

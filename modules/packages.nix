@@ -1,7 +1,7 @@
+# PACKAGES.NIX
+# Package lists
 { pkgs, ... }:
 {
-  # User-facing applications. Curated from the Arch pacman list — not
-  # exhaustive. Add what you actually use; trim what you don't.
   environment.systemPackages = with pkgs; [
     # Browsers / comms
     firefox
@@ -9,7 +9,6 @@
     discord
     signal-desktop
     telegram-desktop
-    nheko
     thunderbird
 
     # Productivity / media
@@ -29,14 +28,14 @@
     ripgrep
     fd
     bottom
-    neofetch
+    hyfetch
     wget
     rsync
     unzip
     unrar
     p7zip
 
-    # Hyprland ecosystem
+    # Hyprland/desktop
     waybar
     wofi
     hyprpaper
@@ -44,26 +43,26 @@
     slurp
     wl-clipboard
     playerctl
+    bibata-cursors
 
     # Secrets / VPN
     _1password-gui
     _1password-cli
     keepassxc
     mullvad-vpn
-    tor-browser-bundle-bin
+    tor-browser
 
     # Games / launchers
     steam
     lutris
     prismlauncher
+    protontricks
 
-    # 3D / EE / CAD (subset — kicad is large; trim if you don't need it)
+    # Engineering
     freecad
     prusa-slicer
     openscad
     kicad
   ];
 
-  programs.steam.enable = true;
-  services.mullvad-vpn.enable = true;
 }

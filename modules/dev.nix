@@ -1,3 +1,5 @@
+# DEV.NIX
+# Devel tools
 { pkgs, ... }:
 {
   environment.systemPackages = with pkgs; [
@@ -46,7 +48,6 @@
     which
   ];
 
-  # Virt / containers — Arch had gnome-boxes; provide libvirt as the backend.
   virtualisation.libvirtd.enable = true;
   programs.virt-manager.enable = true;
 }

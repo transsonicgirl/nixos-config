@@ -1,0 +1,96 @@
+{ config, lib, pkgs, modulesPath, ... }:
+{
+    imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
+
+    boot.initrd.availableKernelModules = [
+    "xhci_pci_renesas" "xhci_pci" "ahci" "nvme" "usb_storage" "sd_mod"
+    ];
+    boot.kernelParams = [ "rootdelay=20" ];
+    boot.initrd.kernelModules = [ "usbhid" ];
+    boot.kernelModules = [ "kvm-amd" "amdgpu" ];
+    boot.extraModulePackages = [ ];
+
+    fileSystems."/" = {
+        device = "/dev/disk/by-uuid/4913665a-1e25-45ed-a551-1202a647d02a";
+        fsType = "btrfs";
+        options = [ "space_cache=v2" "compress=zstd" ];
+    };
+
+    boot.initrd.luks.devices."root" = {
+        device = "/dev/disk/by-uuid/dbdf8fd1-9658-45fe-a693-8ab92eb1e6c1";
+        preLVM = true;
+        allowDiscards = true;
+    };
+
+    fileSystems."/mnt/arch" = {
+        device = "/dev/mapper/arch-root";
+        fsType = "btrfs";
+        options = [ "defaults" "nofail" ];
+    };
+
+    fileSystems."/boot" = {
+        device = "/dev/disk/by-uuid/1B51-B198";
+        fsType = "vfat";
+        options = [ "fmask=0022" "dmask=0022" ];
+    };
+
+    fileSystems."/home/transsonicgirl/The-Box-3" = {
+        device = "/dev/disk/by-uuid/648d72b8-12bc-4234-9b71-ebc6e6a2c612";
+        fsType = "btrfs";
+        options = [ "defaults" "nofail" ];
+    };
+
+    fileSystems."/home/transsonicgirl/WOPR" = {
+        device = "/dev/disk/by-uuid/55d34b42-da62-47f9-9892-e36451294d2c";
+        fsType = "btrfs";
+        options = [ "defaults" "nofail" ];
+    };
+
+    fileSystems."/home/transsonicgirl/Unraid-Server/Vault" = {
+        device = "//192.168.0.42/Vault";
+        fsType = "cifs";
+        options = [
+        "credentials=/home/transsonicgirl/.smbcredentials"
+        "file_mode=0777" "dir_mode=0777"
+        "x-systemd.automount" "noauto"
+        "x-systemd.idle-timeout=60"
+        "x-systemd.device-timeout=5s" "x-systemd.mount-timeout=5s"
+        ];
+    };
+
+    fileSystems."/home/transsonicgirl/Unraid-Server/Caitlyn" = {
+        device = "//192.168.0.42/Caitlyn";
+        fsType = "cifs";
+        options = [
+        "credentials=/home/transsonicgirl/.smbcredentials"
+        "file_mode=0777" "dir_mode=0777"
+        "x-systemd.automount" "noauto"
+        "x-systemd.idle-timeout=60"
+        "x-systemd.device-timeout=5s" "x-systemd.mount-timeout=5s"
+        ];
+    };
+
+    fileSystems."/home/transsonicgirl/Unraid-Server/appdata" = {
+        device = "//192.168.0.42/appdata";
+        fsType = "cifs";
+        options = [
+        "credentials=/home/transsonicgirl/.smbcredentials"
+        "file_mode=0777" "dir_mode=0777"
+        "x-systemd.automount" "noauto"
+        "x-systemd.idle-timeout=60"
+        "x-systemd.device-timeout=5s" "x-systemd.mount-timeout=5s"
+        ];
+    };
+
+    swapDevices = [ ];
+
+    boot.initrd.extraFiles."lib/firmware/renesas_usb_fw.mem" = {
+        source = "${pkgs.linux-firmware}/lib/firmware/renesas_usb_fw.mem";
+    };
+
+    nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+    hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+
+  hardware.bluetooth.enable = true;
+  services.blueman.enable = true;
+}
