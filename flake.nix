@@ -19,25 +19,26 @@
             inherit system;
             specialArgs = { inherit inputs; };
             modules = [
+                ./modules/auto-update.nix
                 ./modules/boot-grub.nix
-                    ./modules/config.nix
-                    ./modules/desktop.nix
-                    ./modules/dev.nix
-                    ./modules/packages.nix
-                    ./modules/system.nix
-                    ./hosts/${hostName}
-            home-manager.nixosModules.home-manager
-            {
-                home-manager.useGlobalPkgs = true;
-                home-manager.useUserPackages = true;
-                home-manager.extraSpecialArgs = { inherit inputs; };
-                home-manager.users.transsonicgirl = import ./home/transsonicgirl.nix;
-                nixpkgs.overlays = [
-                    (final: prev: {
-                     bpytop = final.callPackage ./pkgs/bpytop.nix {};
-                     })
-                ];
-            }
+                ./modules/config.nix
+                ./modules/desktop.nix
+                ./modules/dev.nix
+                ./modules/packages.nix
+                ./modules/system.nix
+                ./hosts/${hostName}
+                home-manager.nixosModules.home-manager
+                {
+                    home-manager.useGlobalPkgs = true;
+                    home-manager.useUserPackages = true;
+                    home-manager.extraSpecialArgs = { inherit inputs; };
+                    home-manager.users.transsonicgirl = import ./home/transsonicgirl.nix;
+                    nixpkgs.overlays = [
+                        (final: prev: {
+                         bpytop = final.callPackage ./pkgs/bpytop.nix {};
+                         })
+                    ];
+                }
             ] ++ extraModules;
         };
     in {
