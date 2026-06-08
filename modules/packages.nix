@@ -65,7 +65,6 @@
 # Engineering
             freecad
             prusa-slicer
-            openscad
             kicad
             ];
 
