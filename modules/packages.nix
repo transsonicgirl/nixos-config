@@ -2,67 +2,70 @@
 # Package lists
 { pkgs, ... }:
 {
-  environment.systemPackages = with pkgs; [
-    # Browsers / comms
-    firefox
-    google-chrome
-    discord
-    signal-desktop
-    telegram-desktop
-    thunderbird
+    environment.systemPackages = with pkgs; [
+# Browsers / comms
+        firefox
+            google-chrome
+            discord
+            signal-desktop
+            telegram-desktop
+            thunderbird
 
-    # Productivity / media
-    obsidian
-    libreoffice-still
-    obs-studio
-    spotify
-    vlc
-    krita
-    gimp
-    darktable
-    calibre
+# System utils
+            nautilus
 
-    # Terminals + shell tools
-    kitty
-    fish
-    ripgrep
-    fd
-    bottom
-    hyfetch
-    wget
-    rsync
-    unzip
-    unrar
-    p7zip
+# Productivity / media
+            obsidian
+            libreoffice-still
+            obs-studio
+            spotify
+            vlc
+            krita
+            gimp
+            darktable
+            calibre
 
-    # Hyprland/desktop
-    waybar
-    wofi
-    hyprpaper
-    grim
-    slurp
-    wl-clipboard
-    playerctl
-    bibata-cursors
+# Terminals + shell tools
+            kitty
+            fish
+            ripgrep
+            fd
+            bottom
+            hyfetch
+            wget
+            rsync
+            unzip
+            unrar
+            p7zip
 
-    # Secrets / VPN
-    _1password-gui
-    _1password-cli
-    keepassxc
-    mullvad-vpn
-    tor-browser
+# Hyprland/desktop
+            waybar
+            wofi
+            hyprpaper
+            grim
+            slurp
+            wl-clipboard
+            playerctl
+            bibata-cursors
 
-    # Games / launchers
-    steam
-    lutris
-    prismlauncher
-    protontricks
+# Secrets / VPN
+            _1password-gui
+            _1password-cli
+            keepassxc
+            mullvad-vpn
+            tor-browser
 
-    # Engineering
-    freecad
-    prusa-slicer
-    openscad
-    kicad
-  ];
+# Games / launchers
+            steam
+            lutris
+            prismlauncher
+            protontricks
+
+# Engineering
+            freecad
+            prusa-slicer
+            openscad
+            kicad
+            ];
 
 }
