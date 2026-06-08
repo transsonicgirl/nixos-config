@@ -1,13 +1,13 @@
-{ config, ... }
+{ config, ... }:
 {
     system.autoUpgrade = {
         enable = true;
-        flake == "/etc/nixos/nixos-config/flake.nix";
+        flake = "/etc/nixos/nixos-config/flake.nix";
         flags = [
             "--update-input" "nixpkgs"
             "--commit-lock-file"
         ];
-        dates = "weekly"
+        dates = "weekly";
         allowReboot = false;
-    }
+    };
 }
