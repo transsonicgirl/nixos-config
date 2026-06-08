@@ -13,6 +13,7 @@
 
 # System utils
             nautilus
+            previewqt
 
 # Productivity / media
             obsidian
