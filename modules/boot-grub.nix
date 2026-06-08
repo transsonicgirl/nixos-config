@@ -21,16 +21,7 @@
         efiSupport       = true;
         enableCryptodisk = true;
         device           = "nodev";
-        useOSProber      = false;     # stops the sdg1 noise; Windows can be a manual entry later
-        extraEntries = ''
-        menuentry "Arch Linux" {
-            insmod part_gpt
-            insmod fat
-            search --no-floppy --fs-uuid --set=root 3FC5-9FB5
-            linux /vmlinuz-linux root=UUID=0633f804-ae29-4cd1-b5f6-0542091783ec rw root=/dev/mapper/root rw
-            initrd /initramfs-linux.img
-        }
-        '';
+        useOSProber      = true;
     };
     boot.loader.efi.canTouchEfiVariables = true;
     boot.loader.efi.efiSysMountPoint = "/boot/efi";
