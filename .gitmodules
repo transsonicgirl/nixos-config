@@ -1,3 +1,0 @@
-[submodule "home/dotfiles/waybar"]
-	path = home/dotfiles/waybar
-	url = git@github.com:transsonicgirl/waybar-config.git
