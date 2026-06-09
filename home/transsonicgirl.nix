@@ -1,5 +1,8 @@
 { inputs, config, pkgs, ... }:
 {
+    imports = [
+        ./appconfig/ksp.nix
+    ];
     home = {
         username = "transsonicgirl";
         homeDirectory = "/home/transsonicgirl";
