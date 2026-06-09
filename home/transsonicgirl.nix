@@ -14,6 +14,7 @@
             bibata-cursors
             hyfetch
             bpytop
+            ckan
         ];
 
     };
