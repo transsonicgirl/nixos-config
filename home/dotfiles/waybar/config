@@ -1,0 +1,148 @@
+[
+  {
+    "output": "DP-1",
+    "layer": "top",
+    "position": "top",
+    "spacing": 0,
+
+    "modules-left": ["hyprland/workspaces", "tray"],
+    "modules-center": ["clock#utc", "clock#local", "clock#sea"],
+    "modules-right": [
+      "custom/mullvad",
+      "custom/tailscale",
+      "custom/network",
+      "pulseaudio",
+      "temperature",
+      "cpu",
+      "memory",
+    ],
+
+    "hyprland/workspaces": {
+      "format": "{name}",
+      "on-click": "activate",
+      "sort-by": "id"
+    },
+
+    "tray": {
+      "spacing": 6,
+      "icon-size": 16
+    },
+
+    "custom/mullvad": {
+      "exec": "~/.config/waybar/scripts/mullvad.sh",
+      "interval": 5,
+      "format": "<span font_size='150%'>\uf132</span>  {}",
+      "escape": false,
+      "on-click": "mullvad-vpn",
+      "tooltip": false
+    },
+
+    "custom/network": {
+      "exec": "~/.config/waybar/scripts/network.sh",
+      "interval": 2,
+      "format": "<span font_size='150%'>\uf1eb</span>  {}",
+      "escape": false,
+      "tooltip": false
+    },
+    
+    "custom/tailscale": {
+      "exec": "~/.config/waybar/scripts/tailscale.sh",
+      "interval": 5,
+      "format": "<span font_size='150%'>\uf132</span>  {}",
+      "escape": false,
+      "tooltip": false
+    },
+
+    "pulseaudio": {
+      "format": "<span font_size='150%'>\uf028</span>  {volume}%",
+      "format-muted": "<span font_size='150%'>\uf026</span>  muted",
+      "escape": false,
+      "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+      "scroll-step": 5,
+      "tooltip": true,
+      "tooltip-format": "{desc}",
+    },
+
+    "temperature": {
+      "hwmon-path": "/sys/class/hwmon/hwmon4/temp1_input",
+      "format": "<span font_size='120%'>\uf2c9</span>  {temperatureC}\u00b0C",
+      "escape": false,
+      "interval": 2,
+      "warning-threshold": 75,
+      "critical-threshold": 90,
+      "tooltip": false
+    },
+
+    "cpu": {
+      "format": "<span font_size='180%'>\uf2db</span>  {usage}%",
+      "escape": false,
+      "interval": 1,
+      "tooltip": false
+    },
+
+    "memory": {
+      "format": "<span font_size='150%'>\uf1c0</span>  {percentage}%",
+      "escape": false,
+      "interval": 2,
+      "warning": 80,
+      "critical": 95,
+      "tooltip": false
+    },
+
+    "clock#local": {
+      "format": "{:%H:%M:%S    %a %d %b %Y}",
+      "escape": false,
+      "interval": 1,
+      "tooltip": false
+    },
+
+    "clock#utc": {
+      "timezone": "UTC",
+      "format": "UTC {:%H:%M}",
+      "escape": false,
+      "interval": 1,
+      "tooltip": false
+    },
+
+    "clock#sea": {
+      "timezone": "America/Los_Angeles",
+      "format": "SEA {:%H:%M}",
+      "escape": false,
+      "interval": 1,
+      "tooltip": false
+    }
+  },
+
+  {
+    "output": "DP-2",
+    "layer": "top",
+    "position": "top",
+    "spacing": 0,
+
+    "modules-left": ["hyprland/workspaces"],
+    "modules-center": ["clock#local"],
+    "modules-right": ["pulseaudio"],
+
+    "hyprland/workspaces": {
+      "format": "{name}",
+      "on-click": "activate",
+      "sort-by": "id"
+    },
+
+    "pulseaudio": {
+      "format": "<span font_size='150%'>\uf028</span>  {volume}%",
+      "format-muted": "<span font_size='150%'>\uf026</span>  muted",
+      "escape": false,
+      "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+      "scroll-step": 5,
+      "tooltip": false
+    },
+
+    "clock#local": {
+      "format": "{:%H:%M:%S    %a %d %b %Y}",
+      "escape": false,
+      "interval": 1,
+      "tooltip": false
+    }
+  }
+]

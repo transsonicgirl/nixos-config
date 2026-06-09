@@ -1,0 +1,162 @@
+/* ═══════════════════════════════════════════════════════════════
+   Waybar — Catppuccin Mocha rice
+   Icons: Font Awesome 6 Free (sized via Pango markup per-module)
+   Text:  IosevkaTerm Nerd Font Mono @ 16px
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Palette ────────────────────────────────────────────────── */
+@define-color base      #1e1e2e;
+@define-color mantle    #181825;
+@define-color crust     #11111b;
+@define-color surface0  #313244;
+@define-color surface1  #45475a;
+@define-color surface2  #585b70;
+@define-color overlay0  #6c7086;
+@define-color text      #cdd6f4;
+@define-color subtext1  #bac2de;
+@define-color subtext0  #a6adc8;
+@define-color lavender  #b4befe;
+@define-color mauve     #cba6f7;
+@define-color red       #f38ba8;
+@define-color peach     #fab387;
+@define-color green     #a6e3a1;
+@define-color teal      #94e2d5;
+@define-color sky       #89dceb;
+@define-color sapphire  #74c7ec;
+
+/* ── Global ─────────────────────────────────────────────────── */
+* {
+    font-family: "Font Awesome 6 Free", "IosevkaTerm Nerd Font Mono";
+    font-size: 16px;
+    font-weight: 900;
+    border: none;
+    border-radius: 0;
+    min-height: 0;
+    padding: 0;
+    margin: 0;
+}
+
+/* ── Bar ────────────────────────────────────────────────────── */
+window#waybar {
+    background-color: @mantle;
+    color: @text;
+}
+
+.modules-left,
+.modules-center,
+.modules-right {
+    padding: 4px 6px;
+}
+
+/* ── Pill base ──────────────────────────────────────────────── */
+#custom-mullvad,
+#custom-network,
+#custom-tailscale,
+#pulseaudio,
+#temperature,
+#cpu,
+#memory,
+#clock,
+#tray {
+    background-color: @surface0;
+    color: @text;
+    border-radius: 8px;
+    padding: 3px 14px;
+    margin: 4px 3px;
+}
+
+#tray {
+    padding: 3px 8px;
+}
+
+/* ── Workspaces ─────────────────────────────────────────────── */
+#workspaces {
+    background-color: @surface0;
+    border-radius: 8px;
+    margin: 4px 3px;
+    padding: 3px 4px;
+}
+
+#workspaces button {
+    background: transparent;
+    color: @subtext0;
+    border-radius: 6px;
+    padding: 1px 10px;
+    font-weight: normal;
+}
+
+#workspaces button.active {
+    background-color: @mauve;
+    color: @crust;
+    font-weight: bold;
+}
+
+#workspaces button.visible {
+    background-color: @surface2;
+    color: @text;
+}
+
+#workspaces button.urgent {
+    background-color: @red;
+    color: @crust;
+}
+
+#workspaces button:hover {
+    background-color: @surface1;
+    color: @text;
+}
+
+/* ── Center clock ───────────────────────────────────────────── */
+#clock {
+    color: @lavender;
+    border: 1px solid @surface2;
+    font-weight: bold;
+    padding: 3px 20px;
+}
+
+/* ── Module accent colors ───────────────────────────────────── */
+
+#custom-mullvad {
+    color: @green;
+}
+
+#custom-network {
+    color: @subtext1;
+}
+
+#custom-tailscale {
+    color: @green;
+}
+
+#pulseaudio {
+    color: @sky;
+}
+
+#pulseaudio.muted {
+    color: @overlay0;
+}
+
+#temperature {
+    color: @peach;
+}
+
+#temperature.critical {
+    color: @red;
+    background-color: mix(@red, @surface0, 0.2);
+}
+
+#cpu {
+    color: @sapphire;
+}
+
+#memory {
+    color: @teal;
+}
+
+#clock.utc,
+#clock.sea {
+    color: @subtext0;
+    font-weight: normal;
+    border: none;
+    padding: 3px 10px;
+}
