@@ -39,9 +39,9 @@
     };
   
     xdg.configFile."hypr".source =
-      config.lib.file.mkOutOfStoreSymlink "./home/dotfiles/hypr";
+      config.lib.file.mkOutOfStoreSymlink "./dotfiles/hypr";
     xdg.configFile."waybar".source =
-      config.lib.file.mkOutOfStoreSymlink "./home/dotfiles/waybar";
+      config.lib.file.mkOutOfStoreSymlink "./dotfiles/waybar";
   
     programs.kitty.enable = true;
 }
