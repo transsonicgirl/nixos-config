@@ -38,11 +38,10 @@
       settings.user.email = "allison.byrnes42@gmail.com";
     };
   
-    # Live-editable (symlink to repo file, edit + hyprctl reload works):
     xdg.configFile."hypr".source =
-      config.lib.file.mkOutOfStoreSymlink "/etc/nixos/home/dotfiles/hypr";
+      config.lib.file.mkOutOfStoreSymlink "./home/dotfiles/hypr";
     xdg.configFile."waybar".source =
-      config.lib.file.mkOutOfStoreSymlink "/etc/nixos/nixos-config/home/dotfiles/waybar";
+      config.lib.file.mkOutOfStoreSymlink "./home/dotfiles/waybar";
   
     programs.kitty.enable = true;
 }
