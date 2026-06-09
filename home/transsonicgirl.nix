@@ -40,7 +40,7 @@
   
     # Live-editable (symlink to repo file, edit + hyprctl reload works):
     xdg.configFile."hypr".source =
-      config.lib.file.mkOutOfStoreSymlink "./home/dotfiles/hypr";
+      config.lib.file.mkOutOfStoreSymlink "/etc/nixos/home/dotfiles/hypr";
     xdg.configFile."waybar".source =
       config.lib.file.mkOutOfStoreSymlink "/etc/nixos/nixos-config/home/dotfiles/waybar";
   
