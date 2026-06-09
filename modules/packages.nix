@@ -68,4 +68,20 @@
             kicad
             ];
 
+# Program enables
+    programs.steam = {
+        enable = true;
+        extraCompatPackages = [ pkgs.proton-ge-bin ];
+    };
+
+    services.mullvad-vpn.enable = true;
+    hardware.openrazer.enable = true;
+    hardware.openrazer.users = [ "transsonicgirl" ];
+    services.tor.enable = true;
+    services.tor.client.enable = true;
+    services.tailscale.enable = true;
+    programs.fish.enable = true;
+    programs._1password.enable = true;
+    programs._1password-gui.enable = true;
+    programs._1password-gui.polkitPolicyOwners = [ "transsonicgirl" ];
 }

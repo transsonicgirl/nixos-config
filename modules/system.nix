@@ -19,19 +19,6 @@
     i18n.defaultLocale = "en_US.UTF-8";
     console.keyMap = "us";
 
-    # Program enables
-    programs.steam.enable = true;
-    services.mullvad-vpn.enable = true;
-    hardware.openrazer.enable = true;
-    hardware.openrazer.users = [ "transsonicgirl" ];
-    services.tor.enable = true;
-    services.tor.client.enable = true;
-    services.tailscale.enable = true;
-    programs.fish.enable = true;
-    programs._1password.enable = true;
-    programs._1password-gui.enable = true;
-    programs._1password-gui.polkitPolicyOwners = [ "transsonicgirl" ];
-
     # System services
     services.printing.enable = true;
     services.printing.drivers = [ pkgs.brlaser ];
@@ -50,8 +37,12 @@
     };
 
     # Drivers
-    hardware.graphics.enable = true;
-    hardware.graphics.enable32Bit = true;
+    hardware.graphics = {
+        enable = true;
+        enable32Bit = true;
+        extraPackages = [ pkgs.mesa ];
+        extraPackages32 = [ pkgs.pkgsi686Linux.mesa ];
+    };
     
     # Fonts
     fonts.packages = with pkgs; [
