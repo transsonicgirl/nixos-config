@@ -36,14 +36,6 @@
       wireplumber.enable = true;
     };
 
-    # Drivers
-    hardware.graphics = {
-        enable = true;
-        enable32Bit = true;
-        extraPackages = [ pkgs.mesa ];
-        extraPackages32 = [ pkgs.pkgsi686Linux.mesa ];
-    };
-    
     # Fonts
     fonts.packages = with pkgs; [
         nerd-fonts.jetbrains-mono
