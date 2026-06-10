@@ -1,25 +1,28 @@
 { config, pkgs, ... }:
+
 let
-kspWrapper = pkgs.buildFHSEnv {
+  kspDir = "/home/transsonicgirl/WOPR/SteamLibrary/steamapps/common/Kerbal Space Program";
+  kspLaunch = pkgs.writeShellScript "ksp-launch" ''
+    cd "${kspDir}"
+    exec "${kspDir}/KSP.x86_64" "$@"
+  '';
+  kspWrapper = pkgs.buildFHSEnv {
     name = "ksp-wrapper";
     targetPkgs = pkgs: with pkgs; [
-        glibc
-        libgcc
-        mesa
-        libGL
-        SDL2
-        udev
-        dbus
-        freetype
-        openal
-        curl
+      glibc
+      libgcc
+      mesa
+      libGL
+      SDL2
+      udev
+      dbus
+      freetype
+      openal
+      curl
     ];
-    runScript = pkgs.writeScript "ksp-launch" ''
-        #!/bin/sh
-        exec "/home/transsonicgirl/WOPR/SteamLibrary/steamapps/common/Kerbal Space Program/KSP.x86_64" "$@"
-    '';
-};
+    runScript = "${kspLaunch}";
+  };
 in
 {
-    home.packages = [ kspWrapper ];
+  home.packages = [ kspWrapper ];
 }
