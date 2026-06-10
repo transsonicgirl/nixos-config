@@ -10,10 +10,10 @@
     enable32Bit = true;
     extraPackages = with pkgs; [ 
         rocmPackages.clr.icd 
-        mesa.drivers
+        mesa
     ];
     extraPackages32 = with pkgs; [
-        pkgsi686Linux.mesa.drivers
+        pkgsi686Linux.mesa
     ];
   };
   services.xserver.videoDrivers = [ "amdgpu" ];
