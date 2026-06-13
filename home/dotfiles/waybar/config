@@ -1,6 +1,5 @@
 [
   {
-    "output": "DP-1",
     "layer": "top",
     "position": "top",
     "spacing": 0,
@@ -107,39 +106,6 @@
     "clock#sea": {
       "timezone": "America/Los_Angeles",
       "format": "SEA {:%H:%M}",
-      "escape": false,
-      "interval": 1,
-      "tooltip": false
-    }
-  },
-
-  {
-    "output": "DP-2",
-    "layer": "top",
-    "position": "top",
-    "spacing": 0,
-
-    "modules-left": ["hyprland/workspaces"],
-    "modules-center": ["clock#local"],
-    "modules-right": ["pulseaudio"],
-
-    "hyprland/workspaces": {
-      "format": "{name}",
-      "on-click": "activate",
-      "sort-by": "id"
-    },
-
-    "pulseaudio": {
-      "format": "<span font_size='150%'>\uf028</span>  {volume}%",
-      "format-muted": "<span font_size='150%'>\uf026</span>  muted",
-      "escape": false,
-      "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
-      "scroll-step": 5,
-      "tooltip": false
-    },
-
-    "clock#local": {
-      "format": "{:%H:%M:%S    %a %d %b %Y}",
       "escape": false,
       "interval": 1,
       "tooltip": false
