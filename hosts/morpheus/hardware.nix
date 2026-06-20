@@ -27,12 +27,8 @@
       boot.initrd.luks.devices."cryptroot" = {
         device = "/dev/disk/by-uuid/dbdf8fd1-9658-45fe-a693-8ab92eb1e6c1";
         allowDiscards = true;   # lets periodic fstrim reach the SSD through LUKS
-        keyFile = "/crypto_keyfile.bin";
       };
 
-      boot.initrd.secrets = {
-        "/crypto_keyfile.bin" = "/boot/crypto_keyfile.bin";
-      };
     
       # ---- Filesystems ----
       # The three btrfs entries are all the SAME filesystem (UUID 0633f804…), the one
