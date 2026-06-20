@@ -25,6 +25,7 @@
             gimp
             darktable
             calibre
+            zoom-us
 
 # Terminals + shell tools
             kitty

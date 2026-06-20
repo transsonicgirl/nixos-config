@@ -19,7 +19,7 @@
     boot.loader.grub = {
         enable           = true;
         efiSupport       = true;
-        enableCryptodisk = true;
+        enableCryptodisk = false;
         device           = "nodev";
         useOSProber      = true;
     };
