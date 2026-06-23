@@ -47,6 +47,22 @@
         font-awesome
     ];
 
-    hardware.keyboard.zsa.enable = true;
+    # ZSA keyboard udev rules
+    services.udev.extraRules = ''
+        # ZSA keyboards
+        KERNEL=="hidraw*", ATTRS{idVendor}=="16c0", MODE="0664", GROUP="plugdev"
+        KERNEL=="hidraw*", ATTRS{idVendor}=="3297", MODE="0664", GROUP="plugdev"
 
+        # Rule for all ZSA keyboards
+        SUBSYSTEM=="usb", ATTR{idVendor}=="3297", GROUP="plugdev"
+        # Rule for the Moonlander
+        SUBSYSTEM=="usb", ATTR{idVendor}=="3297", ATTR{idProduct}=="1969", GROUP="plugdev"
+        # Rule for the Ergodox EZ
+        SUBSYSTEM=="usb", ATTR{idVendor}=="feed", ATTR{idProduct}=="1307", GROUP="plugdev"
+        SUBSYSTEM=="usb", ATTR{idVendor}=="feed", ATTR{idProduct}=="1308", GROUP="plugdev"
+        # Rule for the Planck EZ
+        SUBSYSTEM=="usb", ATTR{idVendor}=="feed", ATTR{idProduct}=="6060", GROUP="plugdev"
+        # Voyager
+        SUBSYSTEM=="usb", ATTR{idVendor}=="3297", ATTR{idProduct}=="1976", GROUP="plugdev"
+        '';
 }
