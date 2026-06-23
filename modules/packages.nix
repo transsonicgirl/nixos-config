@@ -5,69 +5,70 @@
     environment.systemPackages = with pkgs; [
 # Browsers / comms
         firefox
-            google-chrome
-            discord
-            signal-desktop
-            telegram-desktop
-            thunderbird
+        google-chrome
+        discord
+        signal-desktop
+        telegram-desktop
+        thunderbird
 
 # System utils
-            nautilus
-            previewqt
+        nautilus
+        previewqt
+        keymapp
 
 # Productivity / media
-            obsidian
-            libreoffice-still
-            obs-studio
-            spotify
-            vlc
-            krita
-            gimp
-            darktable
-            calibre
-            zoom-us
+        obsidian
+        libreoffice-still
+        obs-studio
+        spotify
+        vlc
+        krita
+        gimp
+        darktable
+        calibre
+        zoom-us
 
 # Terminals + shell tools
-            kitty
-            fish
-            ripgrep
-            fd
-            bottom
-            hyfetch
-            wget
-            rsync
-            unzip
-            unrar
-            p7zip
+        kitty
+        fish
+        ripgrep
+        fd
+        bottom
+        hyfetch
+        wget
+        rsync
+        unzip
+        unrar
+        p7zip
 
 # Hyprland/desktop
-            waybar
-            wofi
-            hyprpaper
-            grim
-            slurp
-            wl-clipboard
-            playerctl
-            bibata-cursors
+        waybar
+        wofi
+        hyprpaper
+        grim
+        slurp
+        wl-clipboard
+        playerctl
+        bibata-cursors
 
 # Secrets / VPN
-            _1password-gui
-            _1password-cli
-            keepassxc
-            mullvad-vpn
-            tor-browser
+        _1password-gui
+        _1password-cli
+        keepassxc
+        mullvad-vpn
+        tor-browser
 
 # Games / launchers
-            steam
-            lutris
-            prismlauncher
-            protontricks
+        steam
+        lutris
+        prismlauncher
+        protontricks
 
 # Engineering
-            freecad
-            prusa-slicer
-            kicad
-            ];
+        freecad
+        prusa-slicer
+        kicad
+    ];
 
 # Program enables
     programs.steam = {

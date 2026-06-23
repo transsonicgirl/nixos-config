@@ -47,4 +47,6 @@
         font-awesome
     ];
 
+    hardware.keyboard.zsa.enable = true;
+
 }
