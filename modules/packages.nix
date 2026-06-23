@@ -15,6 +15,7 @@
         nautilus
         previewqt
         keymapp
+        pulseaudio
 
 # Productivity / media
         obsidian
@@ -40,6 +41,28 @@
         unzip
         unrar
         p7zip
+        usbutils
+        pciutils
+        hdparm
+        dmidecode
+        iproute2
+        ethtool
+        tcpdump
+        nmap
+        whois
+        bind
+        htop
+        lsof
+        strace
+        ltrace
+        sysstat
+        smartmontools
+        parted
+        gptfdisk
+        nvme-cli
+        file
+        psmisc
+        util-linux
 
 # Hyprland/desktop
         waybar
