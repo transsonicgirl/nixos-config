@@ -63,6 +63,9 @@
         file
         psmisc
         util-linux
+        cabextract
+        p7zip
+        unzip
 
 # Hyprland/desktop
         waybar
@@ -86,6 +89,7 @@
         lutris
         prismlauncher
         protontricks
+        winetricks
 
 # Engineering
         freecad
