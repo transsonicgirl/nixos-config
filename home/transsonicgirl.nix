@@ -1,4 +1,8 @@
 { inputs, config, pkgs, lib, ... }:
+let
+     fontsDir = ./assets/fonts;
+     acFontsDir = "$HOME/WOPR/SteamLibrary/steamapps/compatdata/244210/pfx/drive_c/windows/Fonts/";
+in
 {
     imports = [
         ./appconfig/ksp.nix
@@ -55,4 +59,13 @@
         run mkdir -p "$HOME/.steam/root/compatibilitytools.d"
         run ln -sfn "${pkgs.proton-ge-bin.steamcompattool}" "$HOME/.steam/root/compatibilitytools.d/GE-Proton-nix"
         '';
+
+    # assetto corsa fonts symlink
+    home.activation.linkFonts = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        if [ -d "${acFontsDir}" ]; then
+            for f in ${fontsDir}/*.ttf; do
+                run ln -sfn "$f" "${acFontsDir}/$(basename "$f")"
+            done
+        fi
+    '';
 }
