@@ -22,7 +22,7 @@
     mono
     swift
 
-    # Embedded — matches the arm-none-eabi + riscv + openocd stuff on morpheus
+    # Embedded
     gcc-arm-embedded
     openocd
     minicom
@@ -38,6 +38,7 @@
     tree-sitter
     lua-language-server
     nil # Nix LSP
+    claude-code
 
     # Sysadmin / net
     nmap

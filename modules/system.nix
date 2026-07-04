@@ -8,6 +8,7 @@
         description = "transsonicgirl";
         extraGroups = [ "wheel" "networkmanager" "video" "audio" "input" "dialout" "plugdev" ];
         shell = pkgs.fish;
+        openssh.authorizedKeys.keys = [ "ssh-ed25519 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIORo1J0nR0C8Fu274GaY/FUccDKFo2lQYFhlbqckplvR transsonicgirl@morpheus" ];
     };
 
     # Kernel modules
@@ -25,7 +26,11 @@
     services.flatpak.enable = true;
     services.cron.enable = true;
     networking.networkmanager.enable = true;
-    services.openssh.enable = true;
+    services.openssh = {
+        enable = true;
+        settings.PasswordAuthentication = false;
+        settings.PermitRootLogin = "no";
+    };
     security.rtkit.enable = true;
     services.pulseaudio.enable = false;
     services.pipewire = {

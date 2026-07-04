@@ -98,6 +98,8 @@
     ];
 
 # Program enables
+    # Steam
+    # Proton linking is broken right now. See transsonicgirl.nix for a workaround
     programs.steam = {
         enable = true;
         extraCompatPackages = [ pkgs.proton-ge-bin ];
