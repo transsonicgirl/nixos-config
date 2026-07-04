@@ -56,7 +56,7 @@ let
       libxfixes
       libxrender
       libxcb
-      xorg.libXScrnSaver
+      libxscrnsaver
 
       # Fonts — Unity's dynamic font rasterizer (KER, stock dV readouts)
       # needs fontconfig + actual font files visible in the sandbox.

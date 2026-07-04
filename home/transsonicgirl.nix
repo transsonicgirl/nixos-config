@@ -1,4 +1,4 @@
-{ inputs, config, pkgs, ... }:
+{ inputs, config, pkgs, lib, ... }:
 {
     imports = [
         ./appconfig/ksp.nix
@@ -18,10 +18,11 @@
             hyfetch
             bpytop
             ckan
+            steam
         ];
 
     };
-  
+
     programs.home-manager.enable = true;
   
     xdg.configFile."nvim" = {
@@ -48,4 +49,10 @@
       config.lib.file.mkOutOfStoreSymlink "${inputs.self}/home/dotfiles/waybar";
   
     programs.kitty.enable = true;
+
+    # proton directory fix
+    home.activation.linkProtonGE = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        run mkdir -p "$HOME/.steam/root/compatibilitytools.d"
+        run ln -sfn "${pkgs.proton-ge-bin.steamcompattool}" "$HOME/.steam/root/compatibilitytools.d/GE-Proton-nix"
+        '';
 }

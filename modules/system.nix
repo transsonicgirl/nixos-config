@@ -36,6 +36,11 @@
       wireplumber.enable = true;
     };
 
+    # Environment vars
+    environment.sessionVariables = {
+        STEAM_EXTRA_COMPAT_TOOLS_PATHS = "${pkgs.proton-ge-bin}";
+    };
+
     # Fonts
     fonts.packages = with pkgs; [
         nerd-fonts.jetbrains-mono
