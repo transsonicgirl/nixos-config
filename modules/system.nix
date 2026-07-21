@@ -8,7 +8,7 @@
         description = "transsonicgirl";
         extraGroups = [ "wheel" "networkmanager" "video" "audio" "input" "dialout" "plugdev" ];
         shell = pkgs.fish;
-        openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIORo1J0nR0C8Fu274GaY/FUccDKFo2lQYFhlbqckplvR transsonicgirl@morpheus" ];
+        openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIORo1J0nR0C8Fu274GaY/FUccDKFo2lQYFhlbqckplvR transsonicgirl@morpheus" "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILZ9bE92r7V/d24g2mVRZv+BCQNJShaKbJlkN3rEMOMa itemboxes2004@gmail.com" ];
     };
 
     # Kernel modules

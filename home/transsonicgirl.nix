@@ -12,6 +12,7 @@ in
         homeDirectory = "/home/transsonicgirl";
         stateVersion = "26.05";
         pointerCursor = {
+            enable = true;
             name = "Catppuccin-Mocha-Dark-Cursors";
             package = pkgs.catppuccin-cursors.mochaDark;
             hyprcursor.enable = true;

@@ -92,7 +92,6 @@
         winetricks
 
 # Engineering
-        freecad
         prusa-slicer
         kicad
     ];

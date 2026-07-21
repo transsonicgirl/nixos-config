@@ -20,7 +20,6 @@
     rustup
     jdk
     mono
-    swift
 
     # Embedded
     gcc-arm-embedded
