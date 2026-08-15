@@ -88,6 +88,9 @@ return {
 					autocomplete = false,
 				},
 				sources = cmp.config.sources({
+					-- group_index 0 lets lazydev's require() path completions
+					-- replace lua_ls's weaker ones rather than sit alongside them
+					{ name = "lazydev", group_index = 0 },
 					{ name = "nvim_lsp" },
                     { name = "luasnip" },
 					{ name = "buffer" },
