@@ -8,13 +8,13 @@ return {
         },
         keys = {
             -- dap binds
-            { "<Leader>db", ":DapToggleBreakpoint<CR>", { desc = "Toggle breakpoint" }},
-            { "<Leader>dc", ":DapContinue<CR>", { desc = "Continue" }},
-            { "<Leader>di", ":DapStepInto<CR>", { desc = "Step into" }},
-            { "<Leader>do", ":DapStepOver<CR>", { desc = "Step over" }},
-            { "<Leader>du", ":DapStepOut<CR>", { desc = "Step out" }},
-            { "<Leader>dn", ":DapNew<CR>", { desc = "New Debug Session" }},
-            { "<Leader>dx", ":DapTerminate<CR>", { desc = "Terminate session" }},
+            { "<Leader>db", ":DapToggleBreakpoint<CR>", desc = "Toggle breakpoint" },
+            { "<Leader>dc", ":DapContinue<CR>", desc = "Continue" },
+            { "<Leader>di", ":DapStepInto<CR>", desc = "Step into" },
+            { "<Leader>do", ":DapStepOver<CR>", desc = "Step over" },
+            { "<Leader>du", ":DapStepOut<CR>", desc = "Step out" },
+            { "<Leader>dn", ":DapNew<CR>", desc = "New Debug Session" },
+            { "<Leader>dx", ":DapTerminate<CR>", desc = "Terminate session" },
         },
         config = function()
             local dap = require("dap")
@@ -22,38 +22,37 @@ return {
             local dapui = require("dapui")
 
 
-            -- python
+            -- python (needs the `debugpy` module available to python3)
             require("dap-python").setup("python3")
 
-            -- c++
-            dap.adapters.cppdbg = {
-                id = "cppdbg",
+            -- c/c++: use gdb's native DAP interface (gdb >= 14). No cpptools /
+            -- OpenDebugAD7 needed, and gdb is already provided via Nix.
+            dap.adapters.gdb = {
                 type = "executable",
-                command = vim.fn.expand("~/.cpptools/extension/debugAdapters/bin/OpenDebugAD7"),
+                command = "gdb",
+                args = { "--interpreter=dap", "--eval-command", "set print pretty on" },
             }
 
             dap.configurations.cpp = {
                 {
                     name = "Launch file",
-                    type = "cppdbg",
+                    type = "gdb",
                     request = "launch",
                     program = function()
                         return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
                     end,
                     cwd = "${workspaceFolder}",
-                    stopAtEntry = true,
+                    stopAtBeginningOfMainSubprogram = true,
                 },
                 {
                     name = "Attach to gdbserver :1234",
-                    type = "cppdbg",
-                    request = "launch",
-                    MIMode = "gdb",
-                    miDebuggerServerAddress = "localhost:1234",
-                    miDebuggerPath = "/usr/bin/gdb",
-                    cwd = "${workspaceFolder}",
+                    type = "gdb",
+                    request = "attach",
+                    target = "localhost:1234",
                     program = function()
                         return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
                     end,
+                    cwd = "${workspaceFolder}",
                 },
             }
 

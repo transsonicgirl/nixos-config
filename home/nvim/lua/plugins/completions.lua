@@ -21,12 +21,50 @@ return {
 			"chrisgrieser/cmp-nerdfont",
 			"mtoohey31/cmp-fish",
 			"hrsh7th/cmp-nvim-lsp-signature-help",
+			-- ensures clangd_extensions.cmp_scores is on the runtimepath
+			-- before this config runs, so the comparator below can load
+			"p00f/clangd_extensions.nvim",
 		},
 		config = function()
 			-- Set up nvim-cmp.
 			local cmp = require("cmp")
 			local lsp_types = require("cmp.types").lsp
 			require("luasnip.loaders.from_vscode").lazy_load()
+
+			-- Completion sort order. Kind-priority first (methods/props/fields
+			-- above functions/vars, snippets last), then clangd's own scorer
+			-- (only when clangd_extensions is available), then cmp's defaults.
+			local comparators = {
+				function(entry1, entry2)
+					local kind_priority = {
+						[lsp_types.CompletionItemKind.Method] = 100,
+						[lsp_types.CompletionItemKind.Property] = 90,
+						[lsp_types.CompletionItemKind.Field] = 80,
+						[lsp_types.CompletionItemKind.Function] = 70,
+						[lsp_types.CompletionItemKind.Variable] = 60,
+						[lsp_types.CompletionItemKind.Snippet] = 0,
+					}
+					local kind1 = kind_priority[entry1:get_kind()] or 0
+					local kind2 = kind_priority[entry2:get_kind()] or 0
+					if kind1 ~= kind2 then
+						return kind1 > kind2
+					end
+				end,
+				cmp.config.compare.offset,
+				cmp.config.compare.exact,
+				cmp.config.compare.score,
+				cmp.config.compare.kind,
+				cmp.config.compare.sort_text,
+				cmp.config.compare.length,
+				cmp.config.compare.order,
+			}
+			-- clangd_extensions.cmp_scores ranks clangd completions by clangd's
+			-- own score. Insert it just after the kind-priority pass so it wins
+			-- ties within a kind. Guarded so cmp still works if the plugin is gone.
+			local ok_clangd_scores, clangd_scores = pcall(require, "clangd_extensions.cmp_scores")
+			if ok_clangd_scores then
+				table.insert(comparators, 2, clangd_scores)
+			end
 
 			cmp.setup({
 				snippet = {
@@ -59,30 +97,7 @@ return {
 					{ name = "nvim_lsp_signature_help" },
 				}),
 				sorting = {
-					comparators = {
-						function(entry1, entry2)
-							local kind_priority = {
-								[lsp_types.CompletionItemKind.Method] = 100,
-								[lsp_types.CompletionItemKind.Property] = 90,
-								[lsp_types.CompletionItemKind.Field] = 80,
-								[lsp_types.CompletionItemKind.Function] = 70,
-								[lsp_types.CompletionItemKind.Variable] = 60,
-								[lsp_types.CompletionItemKind.Snippet] = 0,
-							}
-							local kind1 = kind_priority[entry1:get_kind()] or 0
-							local kind2 = kind_priority[entry2:get_kind()] or 0
-							if kind1 ~= kind2 then
-								return kind1 > kind2
-							end
-						end,
-						cmp.config.compare.offset,
-						cmp.config.compare.exact,
-						cmp.config.compare.score,
-						cmp.config.compare.kind,
-						cmp.config.compare.sort_text,
-						cmp.config.compare.length,
-						cmp.config.compare.order,
-					},
+					comparators = comparators,
 				},
 				formatting = {
 					fields = { "abbr", "kind", "menu" },
@@ -123,24 +138,11 @@ return {
 				matching = { disallow_symbol_nonprefix_matching = false },
 			})
 
-			local capabilities = require("cmp_nvim_lsp").default_capabilities()
-
-			local servers = {
-				clangd = {
-					cmd = { "clangd", "--background-index", "--all-scopes-completion", "--suggest-missing-includes" },
-					capabilities = capabilities,
-				},
-				cssls = { capabilities = capabilities },
-				html = { capabilities = capabilities },
-				ltex = { capabilities = capabilities },
-				lua_ls = { capabilities = capabilities },
-				rust_analyzer = { capabilities = capabilities },
-				pylsp = { capabilities = capabilities },
-			}
-
-			for name, cfg in pairs(servers) do
-				vim.lsp.config(name, cfg)
-			end
+			-- NOTE: LSP servers are configured in lsp-config.lua (the single
+			-- source of truth). They used to be re-declared here too, but that
+			-- duplicate set a weaker clangd (no --clang-tidy) and clobbered the
+			-- real config depending on plugin load order. cmp capabilities are
+			-- still applied there via cmp_nvim_lsp.default_capabilities().
 
 			vim.api.nvim_create_autocmd("TextChangedI", {
 				group = vim.api.nvim_create_augroup("CmpTriggerOnDotArrow", { clear = true }),

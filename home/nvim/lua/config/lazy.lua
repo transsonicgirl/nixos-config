@@ -26,4 +26,7 @@ require("lazy").setup({
 	install = { colorscheme = { "habamax" } },
 	-- automatically check for plugin updates
 	checker = { enabled = true },
+	-- The nvim config dir is a read-only Nix store symlink (home-manager), so
+	-- lazy can't write lazy-lock.json there. Redirect it to a writable path.
+	lockfile = vim.fn.stdpath("state") .. "/lazy-lock.json",
 })

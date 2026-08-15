@@ -17,8 +17,9 @@ return {
     },
     config = function()
         require("platformio").setup({
-            lsp = "ccls", --default: ccls, other option: clangd
-            -- If you pick clangd, it also creates compile_commands.json
+            -- clangd (not ccls): ccls isn't installed, and you use clangd
+            -- everywhere else. clangd also generates compile_commands.json.
+            lsp = "clangd",
         })
     end,
 }

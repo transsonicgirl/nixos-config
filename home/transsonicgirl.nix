@@ -24,6 +24,7 @@ in
             bpytop
             ckan
             steam
+            gh          # GitHub CLI — required by octo.nvim for PR/issue review
         ];
 
     };
