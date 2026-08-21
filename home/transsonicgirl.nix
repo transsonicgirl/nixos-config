@@ -42,11 +42,37 @@ in
         fish_add_path /opt/riscv/bin
       '';
     };
+
+    programs.ssh = {
+        enable = true;
+        settings = {
+            "*" = {
+                ForwardAgent = false;
+                AddKeysToAgent = "no";
+                Compression = false;
+                ServerAliveInterval = 0;
+                ServerAliveCountMax = 3;
+                HashKnownHosts = false;
+                UserKnownHostsFile = "~/.ssh/known_hosts";
+                ControlMaster = "no";
+                ControlPath = "~/.ssh/master-%r@%n:%p";
+                ControlPersist = "no";
+            };
+
+            violet = {
+                HostName = "100.105.138.60";
+                User = "root";
+                ServerAliveInterval = 60;
+                ServerAliveCountMax = 10;
+            };
+        };
+    };
   
     programs.git = {
       enable = true;
       settings.user.name  = "Allison Byrnes";
       settings.user.email = "allison.byrnes42@gmail.com";
+      settings.init.defaultBranch = "main";
     };
   
     xdg.configFile."hypr".source =
