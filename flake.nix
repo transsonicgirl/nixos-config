@@ -36,6 +36,7 @@
                     nixpkgs.overlays = [
                         (final: prev: {
                          bpytop = final.callPackage ./pkgs/bpytop.nix {};
+                         kasane-teto-cursor = final.callPackage ./pkgs/kasane-teto-cursor {};
                          })
                     ];
                 }

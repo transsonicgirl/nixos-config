@@ -13,8 +13,8 @@ in
         stateVersion = "26.05";
         pointerCursor = {
             enable = true;
-            name = "Catppuccin-Mocha-Dark-Cursors";
-            package = pkgs.catppuccin-cursors.mochaDark;
+            name = "KasaneTeto";
+            package = pkgs.kasane-teto-cursor;
             hyprcursor.enable = true;
             size = 24;
         };
@@ -80,7 +80,13 @@ in
     xdg.configFile."waybar".source =
       config.lib.file.mkOutOfStoreSymlink "${inputs.self}/home/dotfiles/waybar";
   
-    programs.kitty.enable = true;
+    programs.kitty = lib.mkForce {
+        enable = true;
+        settings = {
+            term = "xterm-256color";
+        };
+    };
+
 
     # proton directory fix
     home.activation.linkProtonGE = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
