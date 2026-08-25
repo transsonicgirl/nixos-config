@@ -20,9 +20,9 @@ hl.env("STEAM_FRAME_FORCE_CLOSE", "1")
 --  CURSOR
 --------------------------------------------------------------------------------
 
-hl.env("HYPRCURSOR_THEME", "Bibata-Modern-Classic")
+hl.env("HYPRCURSOR_THEME", "KasaneTeto")
 hl.env("HYPRCURSOR_SIZE", "24")
-hl.env("XCURSOR_THEME", "Bibata-Modern-Classic")
+hl.env("XCURSOR_THEME", "KasaneTeto")
 hl.env("XCURSOR_SIZE", "24")
 
 --------------------------------------------------------------------------------

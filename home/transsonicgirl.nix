@@ -35,6 +35,10 @@ in
       source = ./nvim;
       recursive = true;
     };
+
+    home.sessionVariables = {
+        EDITOR = "nvim";
+    };
   
     programs.fish = {
       enable = true;

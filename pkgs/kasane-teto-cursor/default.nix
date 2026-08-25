@@ -6,6 +6,6 @@ stdenv.mkDerivation {
     dontBuild = true;
     installPhase = '' 
         mkdir -p $out/share/icons/KasaneTeto
-        cp -r cursor.theme cursors $out/share/icons/KasaneTeto/
+        cp -r cursor.theme index.theme cursors $out/share/icons/KasaneTeto/
     '';
 }
