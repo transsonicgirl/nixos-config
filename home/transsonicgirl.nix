@@ -64,8 +64,8 @@ in
             };
 
             violet = {
-                HostName = "100.105.138.60";
-                User = "root";
+                HostName = "100.126.212.6";
+                User = "transsonicgirl";
                 ServerAliveInterval = 60;
                 ServerAliveCountMax = 10;
             };
