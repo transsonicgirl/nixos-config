@@ -90,6 +90,7 @@
         prismlauncher
         protontricks
         winetricks
+        boxflat
 
 # Engineering
         prusa-slicer

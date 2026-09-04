@@ -40,6 +40,8 @@
       pulse.enable = true;
       wireplumber.enable = true;
     };
+    
+    services.udev.packages = [ pkgs.boxflat ];
 
     # Environment vars
     environment.sessionVariables = {
