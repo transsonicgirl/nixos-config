@@ -41,7 +41,26 @@
       wireplumber.enable = true;
     };
     
-    services.udev.packages = [ pkgs.boxflat ];
+    services.udev.packages = [
+        pkgs.boxflat
+
+        # The Moonlander's System Control interface advertises a hat switch, so
+        # the input_id builtin tags it ID_INPUT_JOYSTICK and it enumerates as a
+        # DirectInput joystick -- landing a keyboard ahead of the MOZA wheel in
+        # the device order games walk. Untag it.
+        #
+        # Ordering matters: this has to run after 60-input-id.rules (which sets
+        # the tag) but before 60-persistent-input.rules and 60-steam-input.rules,
+        # both of which consume it. A "60-m" prefix sorts between them;
+        # services.udev.extraRules lands in 99-local.rules, which is too late.
+        (pkgs.writeTextFile {
+            name = "moonlander-nojoystick-udev-rules";
+            destination = "/lib/udev/rules.d/60-moonlander-nojoystick.rules";
+            text = ''
+                SUBSYSTEM=="input", ATTRS{idVendor}=="3297", ATTRS{idProduct}=="1972", ENV{ID_INPUT_JOYSTICK}=="1", ENV{ID_INPUT_JOYSTICK}=""
+            '';
+        })
+    ];
 
     # Environment vars
     environment.sessionVariables = {

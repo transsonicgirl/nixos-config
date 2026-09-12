@@ -21,6 +21,21 @@
   # Desktop-only services from the Arch dump.
   hardware.openrazer.enable = true;   # Razer mouse dock + polychromatic
 
+  # MOZA R5 wheelbase.
+  #
+  # Forza Horizon 6 reads the accelerator from HID usage Y, but Wine's SDL
+  # backend maps SDL axis *index* through a fixed usage table and the R5
+  # interleaves dead axes among its live ones, so usage Y lands on a dead axis
+  # and the game sees no usable wheel. This re-exposes it with the pedals on
+  # the usages a driving game expects.
+  #
+  # Not enabled globally: set the game's Steam launch options to
+  #   moza-fh6-wrap %command%
+  # which runs the shim only for as long as the game does.
+  environment.systemPackages = [
+    (pkgs.callPackage ../../pkgs/moza-fh6-shim { })
+  ];
+
   # Wired NIC (Realtek r8169 enp8s0).
   networking.interfaces.enp8s0.useDHCP = true;
 
