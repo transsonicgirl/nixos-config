@@ -19,7 +19,7 @@
 
 # Productivity / media
         obsidian
-        libreoffice-still
+        libreoffice
         obs-studio
         spotify
         vlc
@@ -54,7 +54,6 @@
         htop
         lsof
         strace
-        ltrace
         sysstat
         smartmontools
         parted
