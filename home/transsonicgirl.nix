@@ -89,6 +89,8 @@ in
         enable = true;
         settings = {
             term = "xterm-256color";
+            # Not relevant for a tiling wm
+            remember_window_size = "no";
         };
     };
 
