@@ -1,0 +1,24 @@
+# sops recipients for this repo's secrets.
+#
+# Two recipients, same shape as ~/code/server-nixos/.sops.yaml:
+#   - user_morpheus: your personal age key (~/.config/sops/age/keys.txt), so
+#     you can run `sops secrets/desktop.yaml` to edit values
+#   - host_morpheus: derived from /etc/ssh/ssh_host_ed25519_key, so sops-nix can
+#     decrypt at activation with no extra key to provision
+#
+# Adding trinity later:
+#   1. nix run nixpkgs#ssh-to-age -- -i /etc/ssh/ssh_host_ed25519_key.pub   (on trinity)
+#   2. add it below as &host_trinity and list it in the key group
+#   3. nix run nixpkgs#sops -- updatekeys secrets/desktop.yaml
+# Skipping step 3 builds fine and then fails at activation, because the host
+# isn't a recipient of a file it is asked to decrypt.
+keys:
+  - &user_morpheus age1q9gl2yw563xpsc485vj070v55gwatv6q726kmsnqg8zgdgdz7ffqnus479
+  - &host_morpheus age1xju6pw0q6v6ayy6zqwlcy6z3pmqdpvnwcpxqk7qfjchjwurfj9wqch4uaf
+
+creation_rules:
+  - path_regex: secrets/desktop\.yaml$
+    key_groups:
+      - age:
+          - *user_morpheus
+          - *host_morpheus

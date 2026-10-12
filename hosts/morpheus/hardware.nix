@@ -64,42 +64,6 @@
         options = [ "defaults" "nofail" ];
     };
 
-    fileSystems."/home/transsonicgirl/Unraid-Server/Vault" = {
-        device = "//192.168.0.42/Vault";
-        fsType = "cifs";
-        options = [
-        "credentials=/home/transsonicgirl/.smbcredentials"
-        "file_mode=0777" "dir_mode=0777"
-        "x-systemd.automount" "noauto"
-        "x-systemd.idle-timeout=60"
-        "x-systemd.device-timeout=5s" "x-systemd.mount-timeout=5s"
-        ];
-    };
-
-    fileSystems."/home/transsonicgirl/Unraid-Server/Caitlyn" = {
-        device = "//192.168.0.42/Caitlyn";
-        fsType = "cifs";
-        options = [
-        "credentials=/home/transsonicgirl/.smbcredentials"
-        "file_mode=0777" "dir_mode=0777"
-        "x-systemd.automount" "noauto"
-        "x-systemd.idle-timeout=60"
-        "x-systemd.device-timeout=5s" "x-systemd.mount-timeout=5s"
-        ];
-    };
-
-    fileSystems."/home/transsonicgirl/Unraid-Server/appdata" = {
-        device = "//192.168.0.42/appdata";
-        fsType = "cifs";
-        options = [
-        "credentials=/home/transsonicgirl/.smbcredentials"
-        "file_mode=0777" "dir_mode=0777"
-        "x-systemd.automount" "noauto"
-        "x-systemd.idle-timeout=60"
-        "x-systemd.device-timeout=5s" "x-systemd.mount-timeout=5s"
-        ];
-    };
-
     # The unencrypted ESP (nvme0n1p1). Only GRUB's tiny EFI stub goes here.
     # Kernels + initrds live in /boot on the *encrypted* root, so 300M is plenty
     # and stays plenty no matter how many generations you keep.

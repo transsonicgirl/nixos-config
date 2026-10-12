@@ -1,6 +1,9 @@
 { pkgs, ... }:
 {
-  imports = [ ./hardware.nix ];
+  imports = [
+    ./hardware.nix
+    ./violet-shares.nix
+  ];
 
   networking.hostName = "morpheus";
 
