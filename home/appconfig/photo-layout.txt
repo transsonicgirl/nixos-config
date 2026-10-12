@@ -1,0 +1,14 @@
+# Affinity Photo panel layout. Apply with `affinity-layout` while Affinity is closed.
+#
+# Under each side, one line per tab group (top to bottom); the first tab on a
+# line is the one shown. Tabs not listed anywhere are kept but hidden, and can
+# still be opened from the Window menu.
+
+left:
+Library Links Assets Stock CloneBrushSources Batch Macro
+TextStyles Glyphs Typography Paragraph Character
+
+right:
+Histogram Scope Colour Swatch
+Navigator Transform History Snapshots Preview32Bit Info
+Layer LayerState Channels Brush Adjustment Effects Style Exif

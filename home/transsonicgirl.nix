@@ -6,6 +6,7 @@ in
 {
     imports = [
         ./appconfig/ksp.nix
+        ./appconfig/affinity.nix
     ];
     home = {
         username = "transsonicgirl";
@@ -84,6 +85,10 @@ in
       config.lib.file.mkOutOfStoreSymlink "${inputs.self}/home/dotfiles/hypr";
     xdg.configFile."waybar".source =
       config.lib.file.mkOutOfStoreSymlink "${inputs.self}/home/dotfiles/waybar";
+
+    # film simulation .cube LUTs for Affinity Photo (Layer > New Adjustment > LUT)
+    home.file."Pictures/LUTs/Pat David Film".source =
+      "${pkgs.film-luts}/share/luts/pat-david";
   
     programs.kitty = lib.mkForce {
         enable = true;

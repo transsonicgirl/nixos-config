@@ -28,6 +28,9 @@
         darktable
         calibre
         zoom-us
+        affinity-photo
+        affinity-designer
+        affinity-publisher
 
 # Terminals + shell tools
         kitty
