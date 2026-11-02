@@ -26,6 +26,7 @@ in
             ckan
             steam
             gh          # GitHub CLI — required by octo.nvim for PR/issue review
+            math-preview  # MathJax renderer for Emacs' inline LaTeX (math-preview.el)
         ];
 
     };
@@ -34,6 +35,49 @@ in
   
     xdg.configFile."nvim" = {
       source = ./nvim;
+      recursive = true;
+    };
+
+    # Emacs: packages come from Nix (not package.el), init.el only configures
+    # them. pgtk = native Wayland build for Hyprland.
+    programs.emacs = {
+      enable = true;
+      package = pkgs.emacs-pgtk;
+      extraPackages = epkgs: with epkgs; [
+        treesit-grammars.with-all-grammars
+        no-littering
+        catppuccin-theme
+        nerd-icons
+        doom-modeline
+        indent-bars
+        undo-fu
+        evil
+        evil-collection
+        evil-mc
+        general
+        vertico
+        orderless
+        marginalia
+        consult
+        treesit-auto
+        nix-ts-mode
+        markdown-mode
+        mixed-pitch
+        math-preview
+        corfu
+        apheleia
+        nerd-icons-dired
+        dired-subtree
+        dired-sidebar
+        magit
+        diff-hl
+        dashboard
+        claude-code   # yuya373/claude-code-emacs (runs the CLI in vterm)
+      ];
+    };
+
+    xdg.configFile."emacs" = {
+      source = ./emacs;
       recursive = true;
     };
 
