@@ -70,6 +70,7 @@
 
     # Fonts
     fonts.packages = with pkgs; [
+        ioskeley-mono   # pkgs/ioskeley-mono, the default monospace font
         nerd-fonts.jetbrains-mono
         nerd-fonts.fira-code
         nerd-fonts.symbols-only
@@ -78,6 +79,8 @@
         noto-fonts-color-emoji
         font-awesome
     ];
+    # Anything asking fontconfig for "monospace" gets Ioskeley Mono
+    fonts.fontconfig.defaultFonts.monospace = [ "IoskeleyMono Nerd Font Mono" ];
 
     # ZSA keyboard udev rules
     services.udev.extraRules = ''

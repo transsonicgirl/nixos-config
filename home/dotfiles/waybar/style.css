@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
    Waybar — Catppuccin Mocha rice
    Icons: Font Awesome 6 Free (sized via Pango markup per-module)
-   Text:  IosevkaTerm Nerd Font Mono @ 16px
+   Text:  IoskeleyMono Nerd Font Mono @ 16px
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── Palette ────────────────────────────────────────────────── */
@@ -26,7 +26,7 @@
 
 /* ── Global ─────────────────────────────────────────────────── */
 * {
-    font-family: "Font Awesome 6 Free", "IosevkaTerm Nerd Font Mono";
+    font-family: "Font Awesome 6 Free", "IoskeleyMono Nerd Font Mono";
     font-size: 16px;
     font-weight: 900;
     border: none;

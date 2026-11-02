@@ -46,6 +46,7 @@
                          bpytop = final.callPackage ./pkgs/bpytop.nix {};
                          kasane-teto-cursor = final.callPackage ./pkgs/kasane-teto-cursor {};
                          film-luts = final.callPackage ./pkgs/film-luts {};
+                         ioskeley-mono = final.callPackage ./pkgs/ioskeley-mono {};
                          })
                     ];
                 }

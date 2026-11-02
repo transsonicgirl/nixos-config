@@ -62,7 +62,6 @@ in
         treesit-auto
         nix-ts-mode
         markdown-mode
-        mixed-pitch
         math-preview
         corfu
         apheleia
@@ -138,6 +137,7 @@ in
         enable = true;
         settings = {
             term = "xterm-256color";
+            font_family = "IoskeleyMono Nerd Font Mono";
             # Not relevant for a tiling wm
             remember_window_size = "no";
         };

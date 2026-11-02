@@ -51,7 +51,7 @@
 
 ;;; ---------------------------------------------------------------- look
 
-(set-face-attribute 'default nil :family "JetBrainsMono Nerd Font" :height 110)
+(set-face-attribute 'default nil :family "IoskeleyMono Nerd Font" :height 110)
 
 (use-package catppuccin-theme
   :demand t
@@ -97,7 +97,11 @@
         ;; telescope: type in insert, ESC to normal (j/k/gg/G), ESC again quits
         evil-want-minibuffer t)
   :config
-  (evil-mode 1))
+  (evil-mode 1)
+  ;; `:' and the pickers always open ready to type. The minibuffer buffer is
+  ;; reused between prompts, so otherwise it keeps the state you left it in
+  ;; (normal, after ESC). Depth 90 runs this after evil's own setup.
+  (add-hook 'minibuffer-setup-hook #'evil-insert-state 90))
 
 ;; Vim keys in Dired, Magit, help, vterm, the dashboard, etc.
 (use-package evil-collection
@@ -189,61 +193,125 @@ shadow ESC in pickers and popups."
 
 ;;; ---------------------------------------------------------------- markdown rendering
 
-;; render-markdown.nvim equivalent, but with real fonts, images and math.
+;; render-markdown.nvim equivalent, but with heading sizes, images and math.
 ;; `my/markdown-render-mode' (SPC t m) switches between rendered and source.
 (use-package markdown-mode
   :defer t
   :custom
-  (markdown-header-scaling t)                    ; bigger headings
   (markdown-fontify-code-blocks-natively t)      ; code blocks use their language's highlighting
   (markdown-enable-math t)
   (markdown-enable-wiki-links t)                 ; Obsidian [[links]]
   (markdown-max-image-size '(800 . 600))
+  :config
+  ;; Heading sizes, as a user-theme layer on top of catppuccin: the theme's
+  ;; heading specs replace markdown-mode's own (`markdown-header-scaling' and
+  ;; use-package's :custom-face have no effect).
+  (custom-theme-set-faces
+   'user
+   '(markdown-header-face-1 ((t (:height 1.8 :weight bold))))
+   '(markdown-header-face-2 ((t (:height 1.5 :weight bold))))
+   '(markdown-header-face-3 ((t (:height 1.3 :weight bold))))
+   '(markdown-header-face-4 ((t (:height 1.2 :weight bold))))
+   '(markdown-header-face-5 ((t (:height 1.1 :weight bold))))
+   '(markdown-header-face-6 ((t (:height 1.05 :weight bold)))))
   :hook (markdown-mode . my/markdown-render-mode))
-
-;; Proportional font for prose, fixed-width kept for code and tables.
-(use-package mixed-pitch :commands mixed-pitch-mode)
 
 ;; LaTeX math ($...$, $$...$$, \[...\]) rendered to SVG by MathJax. No TeX
 ;; install needed; the `math-preview' program comes from home.packages.
 (use-package math-preview :commands (math-preview-all math-preview-clear-all))
 
-(defvar-local my/markdown-reveal-ov nil
-  "Overlay that shows the hidden markup on the cursor's line.")
+;; Like render-markdown.nvim, part of the buffer is shown as plain source:
+;; the cursor line in normal state, the selected lines in visual state, and
+;; everything in insert state. Hidden markup is a mix of `invisible' and
+;; `display' text properties added by font-lock, so the raw range is simply
+;; re-fontified with `markdown-hide-markup' off; math and images are overlays
+;; whose `display' is stashed while they're inside it.
+(defvar-local my/markdown-raw-range nil
+  "(BEG . END) shown as source by `my/markdown-render-mode', or nil.")
+(defvar-local my/markdown-stashed-overlays nil
+  "Math and image overlays currently shown as source.")
 
-(defun my/markdown-reveal-current-line ()
-  "Show raw markup on the cursor line only, like render-markdown.nvim.
-An overlay `invisible' value that isn't in the invisibility spec overrides the
-hidden-markup text property, so the line displays as plain source."
-  (unless my/markdown-reveal-ov
-    (setq my/markdown-reveal-ov (make-overlay 1 1))
-    (overlay-put my/markdown-reveal-ov 'invisible 'my/markdown-revealed))
-  (move-overlay my/markdown-reveal-ov (line-beginning-position) (1+ (line-end-position))))
+(defun my/markdown-wanted-raw-range ()
+  (cond ((memq evil-state '(insert replace emacs))
+         (cons (point-min) most-positive-fixnum)) ; stable while typing
+        ((evil-visual-state-p)
+         (cons (save-excursion (goto-char evil-visual-beginning) (line-beginning-position))
+               (save-excursion (goto-char (max evil-visual-beginning (1- evil-visual-end)))
+                               (1+ (line-end-position)))))
+        (t (cons (line-beginning-position) (1+ (line-end-position))))))
+
+(defun my/markdown-fontify-region (beg end &optional loudly)
+  "`font-lock-fontify-region-function' that leaves `my/markdown-raw-range' unrendered."
+  (let ((bounds (font-lock-default-fontify-region beg end loudly))
+        (raw my/markdown-raw-range))
+    (when (and raw (< (car raw) end) (> (cdr raw) beg))
+      ;; Redo the raw lines without hiding. Only whole-line extension here:
+      ;; markdown-mode would otherwise widen this to the whole paragraph.
+      (let ((rb (max beg (car raw)))
+            (re (min end (cdr raw)))
+            (markdown-hide-markup nil)
+            (font-lock-extend-region-functions '(font-lock-extend-region-wholelines)))
+        (font-lock-default-fontify-region rb re loudly)
+        (with-silent-modifications
+          (remove-text-properties rb re '(invisible nil)))))
+    bounds))
+
+(defun my/markdown-sync-overlays ()
+  "Show math/image overlays as source inside the raw range, rendered elsewhere."
+  (dolist (ov my/markdown-stashed-overlays)
+    (when (overlay-buffer ov)
+      (overlay-put ov 'display (overlay-get ov 'my/display))
+      (overlay-put ov 'face (overlay-get ov 'my/face))))
+  (setq my/markdown-stashed-overlays nil)
+  (when my/markdown-raw-range
+    (dolist (ov (overlays-in (car my/markdown-raw-range)
+                             (min (cdr my/markdown-raw-range) (point-max))))
+      (when (or (eq (overlay-get ov 'category) 'math-preview)
+                (memq ov markdown-inline-image-overlays))
+        (overlay-put ov 'my/display (overlay-get ov 'display))
+        (overlay-put ov 'my/face (overlay-get ov 'face))
+        (overlay-put ov 'display nil)
+        (overlay-put ov 'face nil)
+        (push ov my/markdown-stashed-overlays)))))
+
+(defun my/markdown-update-raw-range ()
+  (let ((old my/markdown-raw-range)
+        (new (my/markdown-wanted-raw-range)))
+    (unless (equal old new)
+      (setq my/markdown-raw-range new)
+      (dolist (r (list old new))
+        (when r (font-lock-flush (min (car r) (point-max)) (min (cdr r) (point-max)))))
+      (my/markdown-sync-overlays))))
+
+(defun my/markdown-render-math ()
+  (math-preview-all)
+  (my/markdown-sync-overlays))
 
 (define-minor-mode my/markdown-render-mode
-  "Render markdown in place: hidden markup, prose font, images and math."
+  "Render markdown in place: hidden markup, images and math."
   :lighter nil
   (if my/markdown-render-mode
       (progn
+        (setq-local font-lock-fontify-region-function #'my/markdown-fontify-region)
         (setq-local markdown-hide-markup nil)
         (markdown-toggle-markup-hiding 1)
-        (add-hook 'post-command-hook #'my/markdown-reveal-current-line nil t)
-        ;; fonts, images and SVG math need a GUI frame; `emacs -nw' just hides markup
+        (add-hook 'post-command-hook #'my/markdown-update-raw-range nil t)
+        ;; images and SVG math need a GUI frame; `emacs -nw' just hides markup
         (when (display-graphic-p)
-          (mixed-pitch-mode 1)
           (markdown-display-inline-images)
           (when (executable-find "math-preview")
             (math-preview-all)
-            (add-hook 'after-save-hook #'math-preview-all nil t))))
+            (add-hook 'after-save-hook #'my/markdown-render-math nil t)))
+        (my/markdown-update-raw-range))
+    (remove-hook 'post-command-hook #'my/markdown-update-raw-range t)
+    (remove-hook 'after-save-hook #'my/markdown-render-math t)
+    (setq my/markdown-raw-range nil)
+    (my/markdown-sync-overlays)
+    (kill-local-variable 'font-lock-fontify-region-function)
     (markdown-toggle-markup-hiding -1)
     (when (display-graphic-p)
-      (mixed-pitch-mode -1)
       (markdown-remove-inline-images)
-      (math-preview-clear-all))
-    (remove-hook 'post-command-hook #'my/markdown-reveal-current-line t)
-    (remove-hook 'after-save-hook #'math-preview-all t)
-    (when my/markdown-reveal-ov (delete-overlay my/markdown-reveal-ov)
-          (setq my/markdown-reveal-ov nil))))
+      (math-preview-clear-all))))
 
 ;;; ---------------------------------------------------------------- LSP (eglot, built in)
 
