@@ -137,9 +137,9 @@ in
     };
   
     xdg.configFile."hypr".source =
-      config.lib.file.mkOutOfStoreSymlink "${inputs.self}/home/dotfiles/hypr";
+      config.lib.file.mkOutOfStoreSymlink "/etc/nixos/home/dotfiles/hypr";
     xdg.configFile."waybar".source =
-      config.lib.file.mkOutOfStoreSymlink "${inputs.self}/home/dotfiles/waybar";
+      config.lib.file.mkOutOfStoreSymlink "/etc/nixos/home/dotfiles/waybar";
 
     # film simulation .cube LUTs for Affinity Photo (Layer > New Adjustment > LUT)
     home.file."Pictures/LUTs/Pat David Film".source =
