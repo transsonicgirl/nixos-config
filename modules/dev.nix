@@ -49,6 +49,7 @@
     rust-analyzer              # rust_analyzer
     cmake-language-server      # cmake
     harper                     # harper_ls (prose/grammar for notes & markdown)
+    fish-lsp                   # fish
     # pylsp comes from the python3.withPackages above
 
     # Formatters (used by none-ls). fish_indent ships with fish; clang-format

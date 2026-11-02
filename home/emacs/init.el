@@ -33,7 +33,48 @@
 ;; spacetabs config
 (setq-default indent-tabs-mode nil
               tab-width 4)
-(setq c-ts-mode-indent-offset 4)
+
+;; Auto-indent (RET, `=') uses each mode's own offset, and many default to
+;; 2. Set them all to 4. These are defcustoms, so setq before load sticks.
+(setq c-ts-mode-indent-offset 4
+      nix-ts-mode-indent-offset 4
+      lua-ts-mode-indent-offset 4
+      cmake-ts-mode-indent-offset 4
+      json-ts-mode-indent-offset 4
+      js-indent-level 4
+      typescript-ts-mode-indent-offset 4
+      css-indent-offset 4
+      sh-basic-offset 4
+      fish-indent-offset 4
+      evil-shift-width 4)
+
+;; Emacs' TAB re-indents the line by the major mode's rules instead of
+;; inserting indentation: it does nothing when the mode thinks the line is
+;; already right, and aligns to the previous line's words in text modes. Make
+;; TAB / backspace behave like Vim's expandtab + softtabstop=4 instead.
+(defun my/soft-tab ()
+  "Indent to the next multiple of `tab-width', or indent the region."
+  (interactive)
+  (if (use-region-p)
+      (indent-rigidly (region-beginning) (region-end) tab-width)
+    (tab-to-tab-stop)))
+
+(defun my/soft-backspace ()
+  "Delete back to the previous tab stop if only spaces are in the way."
+  (interactive)
+  (let* ((col (current-column))
+         (n (if (zerop (% col tab-width)) tab-width (% col tab-width)))
+         (spaces (- (point) (save-excursion (skip-chars-backward " " (- (point) n))
+                                            (point)))))
+    (if (and (> spaces 1) (not (use-region-p)))
+        (delete-char (- spaces))
+      (call-interactively #'delete-backward-char))))
+
+(define-minor-mode my/soft-tab-mode
+  "TAB and backspace work in `tab-width' steps of spaces."
+  :keymap (make-sparse-keymap))
+(add-hook 'prog-mode-hook #'my/soft-tab-mode)
+(add-hook 'text-mode-hook #'my/soft-tab-mode)
 
 ;; line numbers + cursorline
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
@@ -124,6 +165,14 @@
 (add-hook 'special-mode-hook
           (lambda () (when (string-match-p "eldoc" (buffer-name)) (my/esc-quits-mode))))
 
+;; Soft tabs (defined under editing basics). <tab> as well as TAB so this
+;; outranks modes that bind <tab>, like markdown-mode's heading cycling.
+(evil-define-key 'insert my/soft-tab-mode-map
+  (kbd "TAB") #'my/soft-tab
+  (kbd "<tab>") #'my/soft-tab
+  (kbd "DEL") #'my/soft-backspace
+  (kbd "<backspace>") #'my/soft-backspace)
+
 ;; Multiple cursors. evil-collection puts the commands under `g.'
 ;; (g.a = cursor on every match, g.q = remove all, g.n / g.N = add on next /
 ;; previous match). C-n / C-p are the vim-visual-multi style shortcuts.
@@ -191,10 +240,20 @@ shadow ESC in pickers and popups."
 
 (use-package nix-ts-mode :mode "\\.nix\\'")
 
+;; Languages Emacs has no tree-sitter mode for. Fish has a grammar but no
+;; Emacs mode uses it, so fish-mode's regex highlighting + fish-lsp it is.
+(use-package fish-mode :mode ("\\.fish\\'" "/fish_funced\\..*\\'"))
+(use-package git-modes :defer t)        ; .gitignore, .gitconfig, .gitattributes
+(use-package hyprlang-ts-mode :mode "/hypr/.*\\.conf\\'")
+
 ;;; ---------------------------------------------------------------- markdown rendering
 
-;; render-markdown.nvim equivalent, but with heading sizes, images and math.
-;; `my/markdown-render-mode' (SPC t m) switches between rendered and source.
+;; render-markdown.nvim look with scaled headings, images and LaTeX; the
+;; renderer lives in lisp/md-render.el. `my/markdown-render-mode' (SPC t m)
+;; switches between rendered and source.
+(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+(autoload 'my/markdown-render-mode "md-render" nil t)
+
 (use-package markdown-mode
   :defer t
   :custom
@@ -220,99 +279,6 @@ shadow ESC in pickers and popups."
 ;; install needed; the `math-preview' program comes from home.packages.
 (use-package math-preview :commands (math-preview-all math-preview-clear-all))
 
-;; Like render-markdown.nvim, part of the buffer is shown as plain source:
-;; the cursor line in normal state, the selected lines in visual state, and
-;; everything in insert state. Hidden markup is a mix of `invisible' and
-;; `display' text properties added by font-lock, so the raw range is simply
-;; re-fontified with `markdown-hide-markup' off; math and images are overlays
-;; whose `display' is stashed while they're inside it.
-(defvar-local my/markdown-raw-range nil
-  "(BEG . END) shown as source by `my/markdown-render-mode', or nil.")
-(defvar-local my/markdown-stashed-overlays nil
-  "Math and image overlays currently shown as source.")
-
-(defun my/markdown-wanted-raw-range ()
-  (cond ((memq evil-state '(insert replace emacs))
-         (cons (point-min) most-positive-fixnum)) ; stable while typing
-        ((evil-visual-state-p)
-         (cons (save-excursion (goto-char evil-visual-beginning) (line-beginning-position))
-               (save-excursion (goto-char (max evil-visual-beginning (1- evil-visual-end)))
-                               (1+ (line-end-position)))))
-        (t (cons (line-beginning-position) (1+ (line-end-position))))))
-
-(defun my/markdown-fontify-region (beg end &optional loudly)
-  "`font-lock-fontify-region-function' that leaves `my/markdown-raw-range' unrendered."
-  (let ((bounds (font-lock-default-fontify-region beg end loudly))
-        (raw my/markdown-raw-range))
-    (when (and raw (< (car raw) end) (> (cdr raw) beg))
-      ;; Redo the raw lines without hiding. Only whole-line extension here:
-      ;; markdown-mode would otherwise widen this to the whole paragraph.
-      (let ((rb (max beg (car raw)))
-            (re (min end (cdr raw)))
-            (markdown-hide-markup nil)
-            (font-lock-extend-region-functions '(font-lock-extend-region-wholelines)))
-        (font-lock-default-fontify-region rb re loudly)
-        (with-silent-modifications
-          (remove-text-properties rb re '(invisible nil)))))
-    bounds))
-
-(defun my/markdown-sync-overlays ()
-  "Show math/image overlays as source inside the raw range, rendered elsewhere."
-  (dolist (ov my/markdown-stashed-overlays)
-    (when (overlay-buffer ov)
-      (overlay-put ov 'display (overlay-get ov 'my/display))
-      (overlay-put ov 'face (overlay-get ov 'my/face))))
-  (setq my/markdown-stashed-overlays nil)
-  (when my/markdown-raw-range
-    (dolist (ov (overlays-in (car my/markdown-raw-range)
-                             (min (cdr my/markdown-raw-range) (point-max))))
-      (when (or (eq (overlay-get ov 'category) 'math-preview)
-                (memq ov markdown-inline-image-overlays))
-        (overlay-put ov 'my/display (overlay-get ov 'display))
-        (overlay-put ov 'my/face (overlay-get ov 'face))
-        (overlay-put ov 'display nil)
-        (overlay-put ov 'face nil)
-        (push ov my/markdown-stashed-overlays)))))
-
-(defun my/markdown-update-raw-range ()
-  (let ((old my/markdown-raw-range)
-        (new (my/markdown-wanted-raw-range)))
-    (unless (equal old new)
-      (setq my/markdown-raw-range new)
-      (dolist (r (list old new))
-        (when r (font-lock-flush (min (car r) (point-max)) (min (cdr r) (point-max)))))
-      (my/markdown-sync-overlays))))
-
-(defun my/markdown-render-math ()
-  (math-preview-all)
-  (my/markdown-sync-overlays))
-
-(define-minor-mode my/markdown-render-mode
-  "Render markdown in place: hidden markup, images and math."
-  :lighter nil
-  (if my/markdown-render-mode
-      (progn
-        (setq-local font-lock-fontify-region-function #'my/markdown-fontify-region)
-        (setq-local markdown-hide-markup nil)
-        (markdown-toggle-markup-hiding 1)
-        (add-hook 'post-command-hook #'my/markdown-update-raw-range nil t)
-        ;; images and SVG math need a GUI frame; `emacs -nw' just hides markup
-        (when (display-graphic-p)
-          (markdown-display-inline-images)
-          (when (executable-find "math-preview")
-            (math-preview-all)
-            (add-hook 'after-save-hook #'my/markdown-render-math nil t)))
-        (my/markdown-update-raw-range))
-    (remove-hook 'post-command-hook #'my/markdown-update-raw-range t)
-    (remove-hook 'after-save-hook #'my/markdown-render-math t)
-    (setq my/markdown-raw-range nil)
-    (my/markdown-sync-overlays)
-    (kill-local-variable 'font-lock-fontify-region-function)
-    (markdown-toggle-markup-hiding -1)
-    (when (display-graphic-p)
-      (markdown-remove-inline-images)
-      (math-preview-clear-all))))
-
 ;;; ---------------------------------------------------------------- LSP (eglot, built in)
 
 ;; Servers are the same ones nvim uses, installed in modules/dev.nix.
@@ -320,7 +286,7 @@ shadow ESC in pickers and popups."
   :hook ((c-ts-mode c++-ts-mode c-mode c++-mode
           python-ts-mode python-mode
           lua-ts-mode rust-ts-mode nix-ts-mode cmake-ts-mode
-          markdown-mode markdown-ts-mode)
+          markdown-mode markdown-ts-mode fish-mode)
          . eglot-ensure)
   :custom
   (eglot-autoshutdown t)                ; stop the server with its last buffer
@@ -331,6 +297,7 @@ shadow ESC in pickers and popups."
                  . ("clangd" "--background-index" "--all-scopes-completion"
                     "--suggest-missing-includes" "--clang-tidy")))
   (add-to-list 'eglot-server-programs '((nix-ts-mode nix-mode) . ("nil")))
+  (add-to-list 'eglot-server-programs '(fish-mode . ("fish-lsp" "start")))
   (add-to-list 'eglot-server-programs
                '((markdown-mode markdown-ts-mode) . ("harper-ls" "--stdio")))
   (evil-define-key 'normal eglot-mode-map "K" #'eldoc-doc-buffer))
