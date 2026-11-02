@@ -35,6 +35,8 @@
 # Terminals + shell tools
         kitty
         fish
+        fishPlugins.fzf-fish
+        fzf
         ripgrep
         fd
         bottom

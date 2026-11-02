@@ -84,12 +84,9 @@ in
         EDITOR = "nvim";
     };
   
-    programs.fish = {
-      enable = true;
-      interactiveShellInit = ''
-        fish_add_path /opt/riscv/bin
-      '';
-    };
+    programs.fish.enable = true;
+    # makes nix-shell / nix develop drop into fish instead of bash
+    programs.nix-your-shell.enable = true;
 
     programs.ssh = {
         enable = true;
