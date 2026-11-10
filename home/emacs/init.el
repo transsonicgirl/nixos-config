@@ -196,6 +196,14 @@ shadow ESC in pickers and popups."
     (let ((evil-mc-mode nil))
       (call-interactively (key-binding [escape])))))
 
+;; nvim's built-in gc / gcc / gc{motion} comment toggle (always linewise).
+(evil-define-operator my/evil-comment (beg end)
+  "Toggle comments on the lines from BEG to END."
+  :type line
+  :move-point nil
+  (comment-or-uncomment-region beg end))
+(evil-define-key '(normal visual) 'global "gc" #'my/evil-comment)
+
 ;; Built in since Emacs 30. `SPC' then wait shows the leader map.
 (which-key-mode 1)
 
@@ -246,6 +254,157 @@ shadow ESC in pickers and popups."
 (use-package git-modes :defer t)        ; .gitignore, .gitconfig, .gitattributes
 (use-package hyprlang-ts-mode :mode "/hypr/.*\\.conf\\'")
 
+;;; ---------------------------------------------------------------- C / C++
+
+;; nvim indented C/C++ with Vim's cindent (default cinoptions), not
+;; tree-sitter. BSD is the closest built-in c-ts-mode style; on top of it,
+;; the cindent defaults it lacks:
+;;   case labels one level inside switch                       (cino :s)
+;;   public:/private: one level inside the class, members two  (cino gs, hs)
+;;   continuation lines in an unclosed ( two levels in          (cino (2s)
+;; c-ts-mode wants the rules wrapped in their language, despite its docstring.
+(defun my/c-ts-after-access-specifier-p (node parent bol &rest _)
+  "Non-nil if NODE is a class member below a public:/private: label."
+  (and (treesit-node-match-p parent "field_declaration_list")
+       (not (and node (treesit-node-match-p
+                       node (rx bos (or "access_specifier" "}") eos))))
+       (seq-some (lambda (child)
+                   (and (< (treesit-node-start child) bol)
+                        (treesit-node-match-p child "access_specifier")))
+                 (treesit-node-children parent t))))
+
+(defun my/c-ts-after-access-label (_node _parent bol &rest _)
+  "Start of the public:/private: label on the line above BOL, if any.
+Reads the text, not the parse tree, so it also works while the class is
+half-typed and doesn't parse yet."
+  (save-excursion
+    (goto-char bol)
+    (forward-line -1)
+    (back-to-indentation)
+    (and (looking-at (rx (or "public" "private" "protected") (* blank) ":" (* blank) eol))
+         (point))))
+
+(defun my/c-ts-open-paren-bol (_node _parent bol &rest _)
+  "Indentation start of the line holding the unclosed ( around BOL, if any.
+Both the matcher and the anchor of the continuation-line rule."
+  (when-let* ((open (nth 1 (save-excursion (syntax-ppss bol))))
+              ((eq (char-after open) ?\()))
+    (save-excursion (goto-char open) (back-to-indentation) (point))))
+
+(defun my/c-ts-double-offset (&rest _)
+  (* 2 c-ts-indent-offset))
+
+(defun my/c-ts-indent-style ()
+  (let ((lang (if (derived-mode-p 'c++-ts-mode) 'cpp 'c)))
+    `((,lang
+       ((node-is "case_statement") standalone-parent c-ts-indent-offset)
+       ((node-is "access_specifier") parent-bol c-ts-indent-offset)
+       (my/c-ts-after-access-specifier-p parent-bol my/c-ts-double-offset)
+       (my/c-ts-after-access-label my/c-ts-after-access-label c-ts-indent-offset)
+       (my/c-ts-open-paren-bol my/c-ts-open-paren-bol my/c-ts-double-offset)
+       ,@(cdar (c-ts-mode--simple-indent-rules lang 'bsd))))))
+
+(setq c-ts-mode-indent-style #'my/c-ts-indent-style)
+
+;; Comment continuation (Vim's formatoptions=jcroql). An unclosed /** breaks
+;; the tree-sitter parse, so RET/o/O continue comments from the text, through
+;; c-ts-mode's `comment-line-break-function' (normally only on M-j).
+(defun my/c-comment-break-add-space (&rest _)
+  "After a bare `/*', c-ts-mode continues with ` *' and no space; add one."
+  (when (looking-back "^[ \t]*\\*" (line-beginning-position))
+    (insert " ")))
+
+(defun my/c-close-comment ()
+  "Typing / on a bare ` * ' line closes the comment as ` */'."
+  (when (and (eq last-command-event ?/)
+             (looking-back "^[ \t]*\\* /" (line-beginning-position)))
+    (delete-char -2)
+    (insert "/")))
+
+;; Vim's C defaults: `_' is part of a word (iskeyword), so w/e/b/ciw/* treat
+;; foo_bar as one word; gq wraps at 79 when textwidth=0; C comments with //
+;; (nvim's commentstring), not /* */.
+(add-hook 'c-ts-base-mode-hook
+          (lambda ()
+            (modify-syntax-entry ?_ "w")
+            (setq-local fill-column 79)
+            (c-ts-mode-toggle-comment-style -1)
+            (add-function :after (local 'comment-line-break-function)
+                          #'my/c-comment-break-add-space)
+            (add-hook 'post-self-insert-hook #'my/c-close-comment nil t)))
+
+(defun my/c-in-own-line-comment-p ()
+  "Non-nil if point is in a comment that starts its line.
+Trailing comments (`foo(); // note') don't count, so RET after one
+starts a normal code line."
+  (let ((ppss (syntax-ppss)))
+    (and (nth 4 ppss)
+         (save-excursion
+           (goto-char (nth 8 ppss))
+           (looking-back "^[ \t]*" (line-beginning-position))))))
+
+(defun my/c-line-ends-in-comment-p (&optional n)
+  "Non-nil if line N lines from this one ends inside an own-line comment."
+  (save-excursion
+    (forward-line (or n 0))
+    (end-of-line)
+    (my/c-in-own-line-comment-p)))
+
+(defun my/c-newline ()
+  "Newline that continues the comment (` * ', `//') when inside one."
+  (interactive)
+  (if (my/c-in-own-line-comment-p)
+      (funcall comment-line-break-function)
+    (newline nil t)))
+
+(defun my/c-open-comment-line ()
+  "Open a comment line after this one and enter insert state."
+  (end-of-line)
+  (evil-insert-state)
+  (funcall comment-line-break-function))
+
+(defun my/c-open-below ()
+  "Like `evil-open-below', but continue the comment if the line ends in one."
+  (interactive)
+  (if (my/c-line-ends-in-comment-p)
+      (my/c-open-comment-line)
+    (call-interactively #'evil-open-below)))
+
+(defun my/c-open-above ()
+  "Like `evil-open-above', but continue the comment if inside one."
+  (interactive)
+  (if (and (save-excursion (back-to-indentation) (evil-in-comment-p))
+           (my/c-line-ends-in-comment-p -1))
+      (progn (forward-line -1) (my/c-open-comment-line))
+    (call-interactively #'evil-open-above)))
+
+(defun my/c-join-comment-leader (&rest _)
+  "After `join-line' inside a comment, drop the joined line's ` * ' or `//'.
+evil's J joins with `join-line'; this is Vim's formatoptions+=j."
+  (when (and (derived-mode-p 'c-ts-base-mode)
+             (nth 4 (syntax-ppss))
+             (looking-at "[ \t]*\\(?:\\*\\|//+\\)\\(?:[ \t]+\\|$\\)"))
+    (replace-match (if (eolp) "" " "))))
+(advice-add 'join-line :after #'my/c-join-comment-leader)
+
+;; ClangdSwitchSourceHeader: clangd knows the project layout (include/ vs
+;; src/), which `ff-find-other-file' only guesses at.
+(defun my/switch-source-header ()
+  "Jump between header and source, through clangd when it's running."
+  (interactive)
+  (if-let* (((eglot-managed-p))
+            (uri (jsonrpc-request (eglot-current-server)
+                                  :textDocument/switchSourceHeader
+                                  (list :uri (eglot-path-to-uri buffer-file-name)))))
+      (find-file (eglot-uri-to-path uri))
+    (ff-find-other-file)))
+
+(with-eval-after-load 'c-ts-mode
+  (keymap-set c-ts-base-mode-map "RET" #'my/c-newline)
+  (evil-define-key 'normal c-ts-base-mode-map
+    "o" #'my/c-open-below
+    "O" #'my/c-open-above))
+
 ;;; ---------------------------------------------------------------- markdown rendering
 
 ;; render-markdown.nvim look with scaled headings, images and LaTeX; the
@@ -291,6 +450,10 @@ shadow ESC in pickers and popups."
   :custom
   (eglot-autoshutdown t)                ; stop the server with its last buffer
   (eglot-events-buffer-config '(:size 0 :format full))
+  ;; Emacs does the indenting: clangd's on-type formatting re-indents each
+  ;; RET LLVM-style (2 spaces) and mangles half-typed /** comments. nvim
+  ;; never enabled it either.
+  (eglot-ignored-server-capabilities '(:documentOnTypeFormattingProvider))
   :config
   (add-to-list 'eglot-server-programs
                '((c-ts-mode c++-ts-mode c-mode c++-mode)
@@ -300,7 +463,22 @@ shadow ESC in pickers and popups."
   (add-to-list 'eglot-server-programs '(fish-mode . ("fish-lsp" "start")))
   (add-to-list 'eglot-server-programs
                '((markdown-mode markdown-ts-mode) . ("harper-ls" "--stdio")))
-  (evil-define-key 'normal eglot-mode-map "K" #'eldoc-doc-buffer))
+  ;; nvim's default LSP maps. evil-collection binds gr alone to references;
+  ;; free it up as a prefix.
+  (evil-define-key 'normal eglot-mode-map
+    "K" #'eldoc-doc-buffer
+    "gr" nil
+    "grn" #'eglot-rename
+    "gra" #'eglot-code-actions
+    "grr" #'xref-find-references
+    "gri" #'eglot-find-implementation
+    "grt" #'eglot-find-typeDefinition
+    "gO" #'imenu))
+
+;; nvim's default ]d / [d diagnostic jumps
+(evil-define-key 'normal flymake-mode-map
+  "]d" #'flymake-goto-next-error
+  "[d" #'flymake-goto-prev-error)
 
 ;; Popup completion (nvim-cmp). Manual like the nvim config: C-SPC opens it,
 ;; and typing `.', `->' or `::' in an LSP buffer opens it automatically.
@@ -309,11 +487,18 @@ shadow ESC in pickers and popups."
   :custom
   (corfu-auto nil)
   (corfu-cycle t)
+  ;; nvim-cmp's confirm({ select = false }): nothing selected on open
+  (corfu-preselect 'prompt)
   :bind (:map corfu-map
               ("C-e" . corfu-quit)
               ("C-f" . corfu-popupinfo-scroll-up)
               ("C-b" . corfu-popupinfo-scroll-down))
   :config
+  ;; ...and RET only accepts an item picked with C-n / C-p; otherwise it
+  ;; falls through to a normal newline.
+  (keymap-set corfu-map "RET"
+              `(menu-item "" corfu-insert
+                          :filter ,(lambda (cmd) (and (>= corfu--index 0) cmd))))
   (global-corfu-mode 1)
   (require 'corfu-popupinfo)
   (corfu-popupinfo-mode 1)
@@ -493,7 +678,7 @@ Reuses that folder's terminal if one is already running."
     "n"  '(dired-sidebar-toggle-sidebar :wk "file sidebar")
     "d"  '(dired-jump :wk "dired here")
     "e"  '(flymake-show-buffer-diagnostics :wk "diagnostics")
-    "s"  '(ff-find-other-file :wk "switch .h/.cpp")
+    "s"  '(my/switch-source-header :wk "switch .h/.cpp")
     "?"  '(which-key-show-major-mode :wk "mode keys")
 
     "f"  '(:ignore t :wk "find")
