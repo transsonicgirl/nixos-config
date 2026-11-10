@@ -71,6 +71,10 @@
         p7zip
         unzip
 
+# Language/programming utils
+        cargo
+        rustc
+
 # Hyprland/desktop
         waybar
         wofi
