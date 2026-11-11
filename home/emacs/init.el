@@ -26,6 +26,12 @@
 (recentf-mode 1)
 (savehist-mode 1)
 (save-place-mode 1)
+;; Reload buffers when their file changes on disk (git checkout, formatters,
+;; other editors). Buffers with unsaved edits are never clobbered; Emacs asks
+;; instead when you next modify them.
+(setq global-auto-revert-non-file-buffers t ; dired, etc. too
+      auto-revert-check-vc-info t           ; keep mode-line branch current
+      auto-revert-verbose nil)              ; no "Reverting buffer" spam
 (global-auto-revert-mode 1)
 
 ;;; ---------------------------------------------------------------- editing basics
