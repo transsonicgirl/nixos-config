@@ -12,7 +12,7 @@ local mod = "SUPER"
 
 -- Update this to your preferred terminal if you switch away from kitty
 local terminal = "kitty"
-local launcher = "wofi --show run"
+local launcher = "pidof wofi || wofi --show run"
 
 hl.env("STEAM_FRAME_FORCE_CLOSE", "1")
 

@@ -135,6 +135,12 @@ in
       settings.user.email = "allison.byrnes42@gmail.com";
       settings.init.defaultBranch = "main";
     };
+
+    programs.wofi = {
+        enable = true;
+        settings = { width = 600; allow_images = true; mode = "run"; location = "bottom_left";};
+        style = builtins.readFile ./dotfiles/wofi/style.css;  # or inline CSS
+    };
   
     xdg.configFile."hypr".source =
       config.lib.file.mkOutOfStoreSymlink "/etc/nixos/home/dotfiles/hypr";

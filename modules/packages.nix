@@ -77,7 +77,6 @@
 
 # Hyprland/desktop
         waybar
-        wofi
         hyprpaper
         hypridle    # not a service: lock.sh runs it only while hyprlock is up
         grim
