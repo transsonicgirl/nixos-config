@@ -226,6 +226,9 @@ hl.bind(mod .. " + d",      hl.dsp.exec_cmd(launcher))
 hl.bind(mod .. " + q",         hl.dsp.window.close())
 hl.bind(mod .. " + SHIFT + Q", hl.dsp.exec_cmd("hyprctl kill")) -- kill cursor
 
+-- - Lock screen (blanks displays after 60s idle while locked) -
+hl.bind(mod .. " + i", hl.dsp.exec_cmd("$HOME/.config/hypr/lock.sh"))
+
 -- - App shortcuts -
 hl.bind(mod .. " + SHIFT + f", hl.dsp.exec_cmd("firefox"))
 hl.bind(mod .. " + SHIFT + d", hl.dsp.exec_cmd("discord"))
